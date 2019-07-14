@@ -72,6 +72,12 @@ First, we need the Vault CLI tool. To install in Google Cloud Shell, run:
 make 0-install-vault
 ```
 
+Now lets clone Github project into Google Cloud Shell workspace.
+
+```shell
+make 0-clone-project
+```
+
 Next, we'll build the cluster. We need to:
 
 - Set up Google APIs.
