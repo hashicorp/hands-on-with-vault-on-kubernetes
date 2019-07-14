@@ -17,6 +17,11 @@ The flow of the workshop is outlined below:
   method](https://www.vaultproject.io/docs/auth/kubernetes.html).
 - Deploy an application that retrieves the secret from Vault.
 
+At the conclusion of the workshop, we will have a Vault cluster and some example
+applications.
+
+![overview](./images/overview.png "Final Environment Overview")
+
 ## Exceptions to Cloud Provider Agnostic Approach
 
 1. Initial cluster creation. This uses GKE and GCP constructs.

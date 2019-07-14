@@ -28,7 +28,7 @@
 8-token:
 	bash scripts/08-token.sh
 
-9-get-secret:
+9-secret:
 	bash scripts/09-get-secret.sh
 
 10-sidecar:
