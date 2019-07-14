@@ -66,16 +66,16 @@ following packages installed:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/):  This will
   already be installed in Google Cloud Shell.
 
-First, we need the Vault CLI tool. To install in Google Cloud Shell, run:
-
-```shell
-make 0-install-vault
-```
-
-Now lets clone Github project into Google Cloud Shell workspace.
+First, lets clone Github project into Google Cloud Shell workspace.
 
 ```shell
 git clone https://github.com/hashicorp/hands-on-with-vault-on-kubernetes.git
+```
+
+We now need the Vault CLI tool. To install in Google Cloud Shell, run:
+
+```shell
+make 0-install-vault
 ```
 
 Next, we'll build the cluster. We need to:
