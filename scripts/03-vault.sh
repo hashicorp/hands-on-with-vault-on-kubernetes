@@ -3,7 +3,41 @@ set -Eeuo pipefail
 
 source "$(pwd)/scripts/__helpers.sh"
 
-helm upgrade --install $(vault-release) helm/vault-helm --namespace $(namespace)
+cat > vault-config.yaml <<EOF
+serverHA:
+  config: |
+    ui = true
+
+    api_addr = "https://RELEASE_NAME.NAMESPACE.svc.cluster.local"
+    cluster_addr = "https://POD_IP:8201"
+
+    listener "tcp" {
+      address     = "127.0.0.1:8200"
+      tls_disable = "true"
+    }
+
+    listener "tcp" {
+      address     = "POD_IP:8200"
+      tls_cert_file = "/vault/userconfig/vault-tls/vault.crt"
+      tls_key_file  = "/vault/userconfig/vault-tls/vault.key"
+      tls_disable_client_certs = true
+    }
+
+    storage "consul" {
+      path = "vault"
+      address = "HOST_IP:8500"
+      token = "CONSUL_ACL_TOKEN"
+    }
+
+    seal "gcpckms" {
+      project     = "$(google-project)"
+      region      = "$(google-region)"
+      key_ring    = "$(keyring)"
+      crypto_key  = "$(key)"
+    }
+EOF
+
+helm upgrade --install $(vault-release) helm/vault-helm --namespace $(namespace) -f vault-config.yaml
 
 kubectl rollout status statefulset/$(vault-release)-ha-server --namespace $(namespace)
 

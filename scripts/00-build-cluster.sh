@@ -4,7 +4,6 @@ set -Eeuo pipefail
 source "$(pwd)/scripts/__helpers.sh"
 
 gcloud services enable \
-  --async \
   --project="$(google-project)" \
   cloudapis.googleapis.com \
   cloudkms.googleapis.com \
