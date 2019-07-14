@@ -71,10 +71,10 @@ serverHA:
     }
 
     seal "gcpckms" {
-      project     = "hc-da-test"
-      region      = "us-west1"
-      key_ring    = "vault"
-      crypto_key  = "init"
+      project     = "GOOGLE_PROJECT"
+      region      = "GOOGLE_REGION"
+      key_ring    = "GOOGLE_KEYRING"
+      crypto_key  = "GOOGLE_CRYPTOKEY"
     }
 
   # extraVolumes is a list of extra volumes to mount. These will be exposed
