@@ -1,0 +1,85 @@
+/*
+  grey (light to dark)
+  #7C8797
+  #9e225a
+  #8D929C
+  #4f112d
+  #280817
+
+  #7c8797
+
+*/
+
+body {
+  background: #7C8797;
+  background: -moz-linear-gradient(-45deg, #7C8797 0%, #8D929C 100%);
+  background: -webkit-linear-gradient(-45deg, #7C8797 0%,#8D929C 100%);
+  background: linear-gradient(135deg, #7C8797 0% ,#8D929C 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7C8797', endColorstr='#8D929C',GradientType=1 );
+
+  /* height: 100%; /* Firefox background fix */ */
+
+  margin: 0;
+  padding: 1em;
+}
+
+body,
+p {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+h1 {
+  color:white;
+  font-weight: normal;
+}
+
+#line {
+  border-bottom: 10px solid #fff;
+  width: 4em;
+}
+
+#config {
+  font-size: 5em;
+  font-weight: bold;
+  text-align: left;
+  color: #fff;
+}
+
+#hostname {
+  color: white;
+  text-align: right;
+  font-family: monospace;
+}
+
+#connection-status {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  color: white;
+  border-radius: 0.2em;
+  padding: 0.2em 0.5em;
+  text-align: right;
+  background-color: grey;
+}
+
+.connected {
+  background-color: green !important;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 700px;
+}
+
+@media only screen and (max-width: 700px) {
+  body {
+    padding: 10px;
+  }
+  h1 {
+    font-size: 1.5em;
+  }
+  #count {
+    font-size: 8em;
+  }
+}

@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "backend-consul.name" . }}-vault-acl-config
+  namespace: {{ .Release.Namespace }}
+data:
+  vault.json: |
+    {
+      "key_prefix": {
+        "vault/": {
+          "policy": "write"
+        }
+      },
+      "node_prefix": {
+        "": {
+          "policy": "write"
+        }
+      },
+      "service": {
+        "vault": {
+          "policy": "write"
+        }
+      },
+      "agent_prefix": {
+        "": {
+          "policy": "write"
+        }
+
+      },
+      "session_prefix": {
+        "": {
+          "policy": "write"
+        }
+      }
+    }

@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exampleapp-simple
+  labels:
+    app: exampleapp-simple
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exampleapp-simple
+  template:
+    metadata:
+      labels:
+        app: exampleapp-simple
+    spec:
+      volumes:
+      - name: certs
+        secret:
+          secretName: vault-tls
+      securityContext:
+      containers:
+      - name: app
+        image: anubhavmishra/exampleapp
+        imagePullPolicy: Always
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONFIG_FILE
+          value: "/etc/secrets/exampleapp"
+        volumeMounts:
+          - name: certs
+            readOnly: true
+            mountPath: /vault/userconfig/vault-tls

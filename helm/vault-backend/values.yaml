@@ -1,0 +1,9 @@
+global:
+  image: "consul:1.5.2"
+
+consul:
+  global:
+    bootstrapACLs: true
+  server:
+    replicas: 3
+    bootstrapExpect: 3

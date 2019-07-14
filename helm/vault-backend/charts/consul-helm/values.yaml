@@ -1,0 +1,389 @@
+# Available parameters and their default values for the Consul chart.
+
+global:
+  # enabled is the master enabled switch. Setting this to true or false
+  # will enable or disable all the components within this chart by default.
+  # Each component can be overridden using the component-specific "enabled"
+  # value.
+  enabled: true
+
+  # Domain to register the Consul DNS server to listen for.
+  domain: consul
+
+  # Image is the name (and tag) of the Consul Docker image for clients and
+  # servers below. This can be overridden per component.
+  #
+  # Examples:
+  #   image: "consul:1.5.0"
+  #   image: "hashicorp/consul-enterprise:1.5.0-ent"   # Enterprise Consul image
+  image: "consul:1.5.0"
+
+  # imageK8S is the name (and tag) of the consul-k8s Docker image that
+  # is used for functionality such as the catalog sync. This can be overridden
+  # per component below.
+  # Note: support for the catalog sync's liveness and readiness probes was added
+  # to consul-k8s v0.6.0. If using an older consul-k8s version, you may need to
+  # remove these checks to make the sync work.
+  imageK8S: "hashicorp/consul-k8s:0.8.1"
+
+  # Datacenter is the name of the datacenter that the agents should register
+  # as. This shouldn't be changed once the Consul cluster is up and running
+  # since Consul doesn't support an automatic way to change this value
+  # currently: https://github.com/hashicorp/consul/issues/1858
+  datacenter: dc1
+
+  # enablePodSecurityPolicies is a boolean flag that controls whether pod
+  # security policies are created for the consul components created by this
+  # chart. See https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+  enablePodSecurityPolicies: false
+
+  # Gossip encryption key. To enable gossip encryption, provide the name of
+  # a Kubernetes secret that contains a gossip key. You can create a gossip
+  # key with the "consul keygen" command. 
+  # See https://www.consul.io/docs/commands/keygen.html 
+  gossipEncryption:
+    secretName: null
+    secretKey: null
+
+  # bootstrapACLs will automatically create and assign ACL tokens within 
+  # the Consul cluster. This currently requires enabling both servers and
+  # clients within Kubernetes. Additionally requires Consul v1.4+ and
+  # consul-k8s v0.8.0+.
+  bootstrapACLs: false
+
+# Server, when enabled, configures a server cluster to run. This should
+# be disabled if you plan on connecting to a Consul cluster external to
+# the Kube cluster.
+server:
+  enabled: "-"
+  image: null
+  replicas: 3
+  bootstrapExpect: 3 # Should <= replicas count
+
+  # enterpriseLicense refers to a Kubernetes secret that you have created that
+  # contains your enterprise license. It is required if you are using an
+  # enterprise binary. Defining it here applies it to your cluster once a leader
+  # has been elected. If you are not using an enterprise image
+  # or if you plan to introduce the license key via another route, then set
+  # these fields to null.
+  enterpriseLicense:
+    secretName: null
+    secretKey: null
+
+  # storage and storageClass are the settings for configuring stateful
+  # storage for the server pods. storage should be set to the disk size of
+  # the attached volume. storageClass is the class of storage which defaults
+  # to null (the Kube cluster will pick the default).
+  storage: 10Gi
+  storageClass: null
+
+  # connect will enable Connect on all the servers, initializing a CA
+  # for Connect-related connections. Other customizations can be done
+  # via the extraConfig setting.
+  connect: true
+
+  # Resource requests, limits, etc. for the server cluster placement. This
+  # should map directly to the value of the resources field for a PodSpec,
+  # formatted as a multi-line string. By default no direct resource request
+  # is made.
+  resources: null
+
+  # updatePartition is used to control a careful rolling update of Consul
+  # servers. This should be done particularly when changing the version
+  # of Consul. Please refer to the documentation for more information.
+  updatePartition: 0
+
+  # disruptionBudget enables the creation of a PodDisruptionBudget to
+  # prevent voluntary degrading of the Consul server cluster.
+  disruptionBudget:
+    enabled: true
+
+    # maxUnavailable will default to (n/2)-1 where n is the number of
+    # replicas. If you'd like a custom value, you can specify an override here.
+    maxUnavailable: null
+
+  # extraConfig is a raw string of extra configuration to set with the
+  # server. This should be JSON.
+  extraConfig: |
+    {}
+
+  # extraVolumes is a list of extra volumes to mount. These will be exposed
+  # to Consul in the path `/consul/userconfig/<name>/`. The value below is
+  # an array of objects, examples are shown below.
+  extraVolumes: []
+    # - type: secret (or "configMap")
+    #   name: my-secret
+    #   load: false # if true, will add to `-config-dir` to load by Consul
+
+  # Affinity Settings
+  # Commenting out or setting as empty the affinity variable, will allow
+  # deployment to single node services such as Minikube
+  affinity: |
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app: {{ template "consul.name" . }}
+              release: "{{ .Release.Name }}"
+              component: server
+          topologyKey: kubernetes.io/hostname
+
+  # Toleration Settings for server pods
+  # This should be a multi-line string matching the Toleration array
+  # in a PodSpec.
+  tolerations: ""
+
+  # nodeSelector labels for server pod assignment, formatted as a muli-line string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  # nodeSelector: |
+  #   beta.kubernetes.io/arch: amd64
+  nodeSelector: null
+
+  # used to assign priority to server pods
+  # ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  priorityClassName: ""
+
+  # Extra annotations to attach to the server pods
+  # This should be a multi-line string mapping directly to the a map of
+  # the annotations to apply to the server pods
+  annotations: null
+
+  # extraEnvVars is a list of extra enviroment variables to set with the stateful set. These could be
+  # used to include proxy settings required for cloud auto-join feature, 
+  # in case kubernetes cluster is behind egress http proxies. Additionally, it could be used to configure
+  # custom consul parameters.
+  extraEnvironmentVars: {}
+    # http_proxy: http://localhost:3128,
+    # https_proxy: http://localhost:3128,
+    # no_proxy: internal.domain.com
+
+# Client, when enabled, configures Consul clients to run on every node
+# within the Kube cluster. The current deployment model follows a traditional
+# DC where a single agent is deployed per node.
+client:
+  enabled: "-"
+  image: null
+  join: null
+
+  # grpc should be set to true if the gRPC listener should be enabled.
+  # This should be set to true if connectInject is enabled.
+  grpc: false
+
+  # Resource requests, limits, etc. for the client cluster placement. This
+  # should map directly to the value of the resources field for a PodSpec,
+  # formatted as a multi-line string. By default no direct resource request
+  # is made.
+  resources: null
+
+  # extraConfig is a raw string of extra configuration to set with the
+  # server. This should be JSON.
+  extraConfig: |
+    {}
+
+  # extraVolumes is a list of extra volumes to mount. These will be exposed
+  # to Consul in the path `/consul/userconfig/<name>/`. The value below is
+  # an array of objects, examples are shown below.
+  extraVolumes: []
+    # - type: secret (or "configMap")
+    #   name: my-secret
+    #   load: false # if true, will add to `-config-dir` to load by Consul
+
+  # Toleration Settings for Client pods
+  # This should be a multi-line string matching the Toleration array
+  # in a PodSpec.
+  # The example below will allow Client pods to run on every node
+  # regardless of taints
+  # tolerations: |
+  #   - operator: "Exists"
+  tolerations: ""
+
+  # nodeSelector labels for client pod assignment, formatted as a muli-line string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  # nodeSelector: |
+  #   beta.kubernetes.io/arch: amd64
+  nodeSelector: null
+
+  # used to assign priority to client pods
+  # ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  priorityClassName: ""
+
+  # Extra annotations to attach to the client pods
+  # This should be a multi-line string mapping directly to the a map of
+  # the annotations to apply to the client pods
+  annotations: null
+
+  # extraEnvVars is a list of extra enviroment variables to set with the pod. These could be
+  # used to include proxy settings required for cloud auto-join feature, 
+  # in case kubernetes cluster is behind egress http proxies. Additionally, it could be used to configure
+  # custom consul parameters.
+  extraEnvironmentVars: {}
+    # http_proxy: http://localhost:3128,
+    # https_proxy: http://localhost:3128,
+    # no_proxy: internal.domain.com
+
+# Configuration for DNS configuration within the Kubernetes cluster.
+# This creates a service that routes to all agents (client or server)
+# for serving DNS requests. This DOES NOT automatically configure kube-dns
+# today, so you must still manually configure a `stubDomain` with kube-dns
+# for this to have any effect:
+# https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/#configure-stub-domain-and-upstream-dns-servers
+dns:
+  enabled: "-"
+
+ui:
+  # True if you want to enable the Consul UI. The UI will run only
+  # on the server nodes. This makes UI access via the service below (if
+  # enabled) predictable rather than "any node" if you're running Consul
+  # clients as well.
+  enabled: "-"
+
+  # True if you want to create a Service entry for the Consul UI.
+  #
+  # serviceType can be used to control the type of service created. For
+  # example, setting this to "LoadBalancer" will create an external load
+  # balancer (for supported K8S installations) to access the UI.
+  service:
+    enabled: true
+    type: null
+    # This should be a multi-line string mapping directly to the a map of
+    # the annotations to apply to the UI service
+    annotations: null
+    # Additional ServiceSpec values
+    # This should be a multi-line string mapping directly to a Kubernetes
+    # ServiceSpec object.
+    additionalSpec: null
+
+# syncCatalog will run the catalog sync process to sync K8S with Consul
+# services. This can run bidirectional (default) or unidirectionally (Consul
+# to K8S or K8S to Consul only).
+#
+# This process assumes that a Consul agent is available on the host IP.
+# This is done automatically if clients are enabled. If clients are not
+# enabled then set the node selection so that it chooses a node with a
+# Consul agent.
+syncCatalog:
+  # True if you want to enable the catalog sync. "-" for default.
+  enabled: false
+  image: null
+  default: true # true will sync by default, otherwise requires annotation
+
+  # toConsul and toK8S control whether syncing is enabled to Consul or K8S
+  # as a destination. If both of these are disabled, the sync will do nothing.
+  toConsul: true
+  toK8S: true
+
+  # k8sPrefix is the service prefix to prepend to services before registering
+  # with Kubernetes. For example "consul-" will register all services
+  # prepended with "consul-". (Consul -> Kubernetes sync)
+  k8sPrefix: null
+
+  # consulPrefix is the service prefix which preprends itself
+  # to Kubernetes services registered within Consul
+  # For example, "k8s-" will register all services peprended with "k8s-".
+  # (Kubernetes -> Consul sync)
+  consulPrefix: null
+
+  # k8sTag is an optional tag that is applied to all of the Kubernetes services
+  # that are synced into Consul. If nothing is set, defaults to "k8s".
+  # (Kubernetes -> Consul sync)
+  k8sTag: null
+
+  # syncClusterIPServices syncs services of the ClusterIP type, which may
+  # or may not be broadly accessible depending on your Kubernetes cluster.
+  # Set this to false to skip syncing ClusterIP services.
+  syncClusterIPServices: true
+
+  # nodePortSyncType configures the type of syncing that happens for NodePort
+  # services. The valid options are: ExternalOnly, InternalOnly, ExternalFirst.
+  # - ExternalOnly will only use a node's ExternalIP address for the sync
+  # - InternalOnly use's the node's InternalIP address
+  # - ExternalFirst will preferentially use the node's ExternalIP address, but
+  #   if it doesn't exist, it will use the node's InternalIP address instead.
+  nodePortSyncType: ExternalFirst
+
+  # aclSyncToken refers to a Kubernetes secret that you have created that contains
+  # an ACL token for your Consul cluster which allows the sync process the correct
+  # permissions. This is only needed if ACLs are enabled on the Consul cluster.
+  aclSyncToken:
+    secretName: null
+    secretKey: null
+
+  # nodeSelector labels for syncCatalog pod assignment, formatted as a muli-line string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  # nodeSelector: |
+  #   beta.kubernetes.io/arch: amd64
+  nodeSelector: null
+
+# ConnectInject will enable the automatic Connect sidecar injector.
+connectInject:
+  enabled: false
+  image: null # image for consul-k8s that contains the injector
+  default: false # true will inject by default, otherwise requires annotation
+
+  # imageConsul and imageEnvoy can be set to Docker images for Consul and
+  # Envoy, respectively. If the Consul image is not specified, the global
+  # default will be used. If the Envoy image is not specified, an early
+  # version of Envoy will be used.
+  imageConsul: null
+  imageEnvoy: null
+
+  # namespaceSelector is the selector for restricting the webhook to only
+  # specific namespaces. This should be set to a multiline string.
+  namespaceSelector: null
+
+  # The certs section configures how the webhook TLS certs are configured.
+  # These are the TLS certs for the Kube apiserver communicating to the
+  # webhook. By default, the injector will generate and manage its own certs,
+  # but this requires the ability for the injector to update its own
+  # MutatingWebhookConfiguration. In a production environment, custom certs
+  # should probaly be used. Configure the values below to enable this.
+  certs:
+    # secretName is the name of the secret that has the TLS certificate and
+    # private key to serve the injector webhook. If this is null, then the
+    # injector will default to its automatic management mode that will assign
+    # a service account to the injector to generate its own certificates.
+    secretName: null
+
+    # caBundle is a base64-encoded PEM-encoded certificate bundle for the
+    # CA that signed the TLS certificate that the webhook serves. This must
+    # be set if secretName is non-null.
+    caBundle: ""
+
+    # certName and keyName are the names of the files within the secret for
+    # the TLS cert and private key, respectively. These have reasonable
+    # defaults but can be customized if necessary.
+    certName: tls.crt
+    keyName: tls.key
+
+  # nodeSelector labels for connectInject pod assignment, formatted as a muli-line string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  # nodeSelector: |
+  #   beta.kubernetes.io/arch: amd64
+  nodeSelector: null
+
+  # aclBindingRuleSelector is a string that defines the automatic binding
+  # rule to control the allowed authentication for Connect injection. The
+  # default disallows using the default service account for ACl generation.
+  # Requires Consul v1.5+ and consul-k8s v0.8.0+.
+  aclBindingRuleSelector: "serviceaccount.name!=default"
+
+  # Requires Consul v1.5+ and consul-k8s v0.8.1+
+  centralConfig:
+    enabled: false
+
+    # defaultProtocol allows you to specify a convenience default protocol if
+    # most of your services are of the same protocol type. The individual annotation
+    # on any given pod will override this value. A protocol must be provided,
+    # either through this setting or individual annotation, for a service to be
+    # registered correctly. Valid values are "http", "http2", "grpc" and "tcp".
+    defaultProtocol: null
+
+    # proxyDefaults is a raw json string that will be applied to all Connect
+    # proxy sidecar pods that can include any valid configuration for the
+    # configured proxy.
+    proxyDefaults: |
+      {}
