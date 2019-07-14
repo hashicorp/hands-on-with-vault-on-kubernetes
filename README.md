@@ -354,8 +354,13 @@ Deploy dynamic secrets enabled sidecar application.
 make 13-dynamic-secrets-sidecar.sh
 ```
 
+## Maintainers
+
+* [Rosemary Wang](https://github.com/joatmon08)
+* [Anubhav Mishra](https://github.com/anubhavmishra)
+
 ## Credits
 
-Credit to Seth Vargo's [Vault on GKE
+This tutorial is based on Seth Vargo's [Vault on GKE
 workshop](https://github.com/sethvargo/vault-kubernetes-workshop).
 
