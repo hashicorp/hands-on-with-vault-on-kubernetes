@@ -75,7 +75,7 @@ make 0-install-vault
 Now lets clone Github project into Google Cloud Shell workspace.
 
 ```shell
-make 0-clone-project
+git clone https://github.com/hashicorp/hands-on-with-vault-on-kubernetes.git
 ```
 
 Next, we'll build the cluster. We need to:

@@ -1,9 +1,6 @@
 0-install-vault:
 	bash scripts/00-install-vault.sh
 
-0-clone-project:
-	bash scripts/00-clone-project.sh
-
 0-build-cluster:
 	bash scripts/00-build-cluster.sh
 
