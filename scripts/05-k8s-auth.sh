@@ -2,9 +2,6 @@
 
 source "$(pwd)/scripts/__helpers.sh"
 
-VAULT_PODNAME=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -n $(namespace) -l app=vault --field-selector=status.phase=Running | head -n1)
-kubectl port-forward ${VAULT_PODNAME} -n $(namespace) 8200:8200 &
-
 kubectl get configmap $(vault-release)-service-config -n $(namespace) -o yaml | sed 's/namespace: '"$(namespace)"'/namespace: default/' | kubectl apply -f - --namespace=default || true
 
 # kubernetes service account for vault authentication.
@@ -40,6 +37,10 @@ K8S_HOST="$(kubectl config view --raw \
   -o go-template="{{ range .clusters }}{{ if eq .name \"${CLUSTER_FQN}\" }}{{ index .cluster \"server\" }}{{ end }}{{ end }}")"
 
 K8S_CACERT="$(gcloud container clusters describe $(cluster-name) --region $(google-region) --format="value(masterAuth.clusterCaCertificate)" | base64 --decode)"
+
+POD_NAME=$(kubectl get pods -n $(namespace) -l app=vault -l component=server -l release=vault -o jsonpath='{.items[*].metadata.name}' --field-selector=status.phase=Running | awk '{ print $2 }')
+
+kubectl port-forward "${VAULT_PODNAME}" 8200:8200 -n $(namespace) &
 
 export VAULT_ADDR="http://localhost:8200"
 export VAULT_TOKEN="$(kubectl get secrets/vault-tokens -n $(namespace) -o jsonpath={.data.admin} | base64 --decode)"

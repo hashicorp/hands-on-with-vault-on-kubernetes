@@ -65,6 +65,12 @@ following packages installed:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/):  This will
   already be installed in Google Cloud Shell.
+  - Setup bash completion for kubectl.
+  
+    ```bash
+    source <(kubectl completion bash)
+    ```
+  
 
 First, lets clone Github project into Google Cloud Shell workspace.
 
