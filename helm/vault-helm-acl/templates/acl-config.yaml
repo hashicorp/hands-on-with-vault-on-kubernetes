@@ -69,3 +69,8 @@ data:
     {
       capabilities = ["read", "sudo"]
     }
+
+    # Configure the database secret engine and create roles
+    path "database/*" {
+      capabilities = [ "create", "read", "update", "delete", "list" ]
+    }
