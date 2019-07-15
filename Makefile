@@ -40,6 +40,9 @@
 12-database-secret-engine:
 	bash scripts/12-dynamic-db-secret.sh
 
+13-dynamic-secrets-sidecar:
+	bash scripts/13-dynamic-secrets-sidecar.sh
+
 clean-kubernetes:
 	bash scripts/clean-kubernetes.sh
 
