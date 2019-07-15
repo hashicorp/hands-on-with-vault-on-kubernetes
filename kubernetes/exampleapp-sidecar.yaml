@@ -78,10 +78,14 @@ spec:
             template {
               contents = <<EOH
             {{- with secret "secret/data/exampleapp/config" }}
-            {{ .Data.data.username }}={{ .Data.data.password }}
+            {{ .Data.username }}={{ .Data.password }}
             {{ end }}
             EOH
               destination = "/etc/secrets/exampleapp"
+              wait {
+                min = "2s"
+                max = "5s"
+              }
             }
 
       - name: app

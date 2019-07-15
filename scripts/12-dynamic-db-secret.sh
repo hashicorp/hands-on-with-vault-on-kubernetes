@@ -4,8 +4,11 @@ set -Eeuo pipefail
 source "$(pwd)/scripts/__helpers.sh"
 
 export VAULT_ADDR="http://localhost:8200"
+
+unset VAULT_TOKEN
+
 export VAULT_TOKEN="$(kubectl get secrets/vault-tokens -n $(namespace) -o jsonpath={.data.admin} | base64 --decode)"
-INSTANCE_IP=$(kubectl get service mysql --no-headers -o custom-columns=":spec.clusterIP")
+export INSTANCE_IP=$(kubectl get svc mysql --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
 
 echo "${INSTANCE_IP}"
 
@@ -22,7 +25,7 @@ vault write database/config/exampleapp-db \
 
 # Create a role which will create a readonly user
 vault write database/roles/readonly \
-  db_name="mysql" \
+  db_name="exampleapp" \
   creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';" \
   default_ttl="1h" \
   max_ttl="24h"

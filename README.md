@@ -71,7 +71,7 @@ following packages installed:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/):  This will
   already be installed in Google Cloud Shell.
   - Setup bash completion for kubectl.
-  
+
     ```bash
     source <(kubectl completion bash)
     ```
@@ -309,6 +309,13 @@ The token can be used to retreive secrets for the `exampleapp` application.
 make 8-token
 ```
 
+The above command will create a local file called `local.env` that contains the Vault root
+token and Vault address.
+
+```bash
+cat local.env
+```
+
 ## Step 9: Get the Secret
 
 We will now use the Vault token generated above to retreive secrets from Vault.
@@ -342,6 +349,20 @@ Deploy exampleapp sidecar application.
 
 ```bash
 make 10-sidecar
+```
+
+Port forward to the sidecar pod.
+
+```bash
+PODNAME=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l app=exampleapp-sidecar)
+kubectl port-forward $PODNAME 8081:8080 &
+```
+
+Let's try updating the secret in Vault.
+
+```bash
+source local.env
+vault kv put secret/data/exampleapp/config ttl="5s" username="exampleapp" password="osc0nisawesome"
 ```
 
 ### Step 11: Deploy MySQL on Kubernetes
