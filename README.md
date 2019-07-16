@@ -389,7 +389,7 @@ make 12-database-secret-engine
 Deploy dynamic secrets enabled sidecar application.
 
 ```shell
-make 13-dynamic-secrets-sidecar.sh
+make 13-dynamic-secrets-sidecar
 ```
 
 ## Maintainers
