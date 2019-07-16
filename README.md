@@ -100,6 +100,7 @@ We can automate these steps via Terraform for more repeatable deployment and
 management but that is out of scope for this workshop. Instead, we'll run:
 
 ```shell
+export GOOGLE_PROJECT=<project>
 make 0-build-cluster
 ```
 
@@ -107,7 +108,6 @@ __Note__: If you are bringing your own cluster, make sure your kubeconfig is set
 correctly. You will also need to set:
 
 ```shell
-export GOOGLE_PROJECT=<project>
 export CLUSTER_NAME=<cluster name>
 ```
 
