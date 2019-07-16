@@ -16,8 +16,8 @@ echo "${INSTANCE_IP}"
 vault secrets enable database
 
 # Configure the database secrets engine TTLs
-vault write database/config/exampleapp-db \
-  plugin_name="mysql-database-plugin" \
+vault write database/config/exampleapp \
+  plugin_name="mysql-legacy-database-plugin" \
   connection_url="{{username}}:{{password}}@tcp(${INSTANCE_IP}:3306)/" \
   allowed_roles="readonly" \
   username="root" \
@@ -27,7 +27,7 @@ vault write database/config/exampleapp-db \
 vault write database/roles/readonly \
   db_name="exampleapp" \
   creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';" \
-  default_ttl="1h" \
+  default_ttl="30s" \
   max_ttl="24h"
 
 # Create a new policy which allows generating these dynamic credentials

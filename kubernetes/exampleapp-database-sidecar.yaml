@@ -82,6 +82,10 @@ spec:
             {{ end }}
             EOH
               destination = "/etc/secrets/exampleapp"
+              wait {
+                min = "2s"
+                max = "5s"
+              }
             }
 
       - name: app
