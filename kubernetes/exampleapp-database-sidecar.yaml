@@ -79,7 +79,7 @@ spec:
             template {
               contents = <<EOH
             {{- with secret "database/creds/readonly" }}
-            {{ .Data.data.username }}={{ .Data.data.password }}
+            {{ .Data.username }}={{ .Data.password }}
             {{ end }}
             EOH
               destination = "/etc/secrets/exampleapp"
