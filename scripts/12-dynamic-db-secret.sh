@@ -28,7 +28,7 @@ vault write database/roles/readonly \
   db_name="exampleapp" \
   creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';" \
   default_ttl="30s" \
-  max_ttl="24h"
+  max_ttl="1m"
 
 # Create a new policy which allows generating these dynamic credentials
 vault policy write exampleapp-db -<<EOF

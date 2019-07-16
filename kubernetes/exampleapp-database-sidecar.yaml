@@ -71,6 +71,7 @@ spec:
           value: |
             vault {
               vault_agent_token_file = "/var/run/secrets/vaultproject.io/.vault-token"
+              grace = "1m"
               retry {
                 backoff = "1s"
               }
