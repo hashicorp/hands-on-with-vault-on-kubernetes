@@ -74,7 +74,11 @@ key() {
 
 cluster-name() {
   (
-    echo "vault-on-kubernetes"
+    local cluster_name="${CLUSTER_NAME:}"
+    if [ -z "${cluster_name:-}" ]; then
+      echo "vault-on-kubernetes"
+      return 0
+    fi
   )
 }
 
