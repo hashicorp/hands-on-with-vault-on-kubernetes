@@ -395,7 +395,7 @@ vault kv put secret/data/exampleapp/config ttl="5s" username="exampleapp" passwo
 When we refresh the browser with the example application, we should see the
 secret updated.
 
-![exampleapp-sidecar-updated](./images/exampleapp-sidecar.png "Sidecar Example
+![exampleapp-sidecar-updated](./images/exampleapp-sidecar-updated.png "Sidecar Example
 App with Updated Secret")
 
 ### Step 11: Deploy MySQL on Kubernetes
