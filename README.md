@@ -1,5 +1,7 @@
 # Vault on Kubernetes
 
+[Introduction Slides](https://speakerdeck.com/joatmon08/hands-on-with-vault-on-kubernetes)
+
 This is workshop material for deploying Vault on Kubernetes. As a pre-requisite,
 this material requires a Kubernetes cluster with a proper auto-unseal mechanism.
 As a result, the initial set-up of the cluster depends on Google Kubernetes
