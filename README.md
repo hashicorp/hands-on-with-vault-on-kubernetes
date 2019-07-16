@@ -75,7 +75,6 @@ following packages installed:
     ```bash
     source <(kubectl completion bash)
     ```
-  
 
 First, lets clone Github project into Google Cloud Shell workspace.
 
@@ -102,6 +101,14 @@ management but that is out of scope for this workshop. Instead, we'll run:
 
 ```shell
 make 0-build-cluster
+```
+
+__Note__: If you are bringing your own cluster, make sure your kubeconfig is set
+correctly. You will also need to set:
+
+```shell
+export GOOGLE_PROJECT=<project>
+export CLUSTER_NAME=<cluster name>
 ```
 
 ## Step 1: Deploy Consul as a Vault Backend
