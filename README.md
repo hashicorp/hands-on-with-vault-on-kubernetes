@@ -441,6 +441,9 @@ PODNAME=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l ap
 kubectl port-forward $PODNAME 8082:8080 &
 ```
 
+Using the username and password from the example application web page, you
+should be able to access the database table.
+
 ## Maintainers
 
 * [Rosemary Wang](https://github.com/joatmon08)
