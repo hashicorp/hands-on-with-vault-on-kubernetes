@@ -300,6 +300,26 @@ Deploy the example application by running:
 make 7-simple
 ```
 
+Let's view the example application in the browser. First, port forward from the
+pod to the Cloud Shell instance.
+
+```shell
+POD_NAME=$(kubectl get pods -l app=exampleapp-simple -o jsonpath='{.items[*].metadata.name}')
+kubectl port-forward $POD_NAME 8080:8080
+```
+
+To view the example application in the browser, we can use the "Web Preview"
+feature in the Google Cloud Shell. It will open a new tab with the example
+application's landing page.
+
+![web-preview](./images/web-preview.png "Google Cloud Shell Web Preview")
+
+We see the empty application on the browser.
+
+![exampleapp-simple](./images/exampleapp-simple.png "Simple Example App")
+
+Hit "Ctrl+C" to stop the port forward and continue.
+
 ## Step 8: Get the Vault Token from JWT
 
 We will perform a Vault login on the behalf of the `exampleapp` pod and get a Vault token.
@@ -318,11 +338,14 @@ cat local.env
 
 ## Step 9: Get the Secret
 
-We will now use the Vault token generated above to retreive secrets from Vault.
+We will now use the Vault token generated above to retrieve secrets from Vault.
 
 ```shell
 make 9-secret
 ```
+
+We are retrieving the static secrets manually. Next, we'll discuss how to do it
+dynamically.
 
 ### Step 10: Access Vault Secrets Using a Sidecar
 
@@ -347,23 +370,33 @@ periodically reads the config file that has secrets from the shared volume.
 
 Deploy exampleapp sidecar application.
 
-```bash
+```shell
 make 10-sidecar
 ```
 
 Port forward to the sidecar pod.
 
-```bash
+```shell
 PODNAME=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l app=exampleapp-sidecar)
-kubectl port-forward $PODNAME 8081:8080 &
+kubectl port-forward $PODNAME 8080:8080 &
 ```
+
+When we open the Web Preview in Cloud Shell, we should see our secret displayed.
+
+![exampleapp-sidecar](./images/exampleapp-sidecar.png "Sidecar Example App")
 
 Let's try updating the secret in Vault.
 
-```bash
+```shell
 source local.env
 vault kv put secret/data/exampleapp/config ttl="5s" username="exampleapp" password="osc0nisawesome"
 ```
+
+When we refresh the browser with the example application, we should see the
+secret updated.
+
+![exampleapp-sidecar-updated](./images/exampleapp-sidecar.png "Sidecar Example
+App with Updated Secret")
 
 ### Step 11: Deploy MySQL on Kubernetes
 
@@ -372,7 +405,7 @@ where we generate dynamically database credentials using Vault's [Database secre
 
 Deploy a dummy MySQL database on Kubernetes.
 
-```bash
+```shell
 make 11-mysql
 ```
 
