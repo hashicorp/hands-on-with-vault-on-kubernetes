@@ -7,6 +7,7 @@ pgrep kubectl | while read -r pid ; do
   kill ${pid}
 done
 
+kubectl delete -f kubernetes/exampleapp-database-sidecar.yaml --ignore-not-found
 kubectl delete -f kubernetes/mysql.yaml --ignore-not-found
 kubectl delete -f kubernetes/exampleapp-sidecar.yaml --ignore-not-found
 kubectl delete -f kubernetes/exampleapp-simple.yaml --ignore-not-found
