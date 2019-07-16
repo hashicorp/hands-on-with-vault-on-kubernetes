@@ -434,6 +434,13 @@ Deploy dynamic secrets enabled sidecar application.
 make 13-dynamic-secrets-sidecar
 ```
 
+Next, port forward and check the Web Preview for the database credentials.
+
+```shell
+PODNAME=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l app=exampleapp-database-sidecar)
+kubectl port-forward $PODNAME 8082:8080 &
+```
+
 ## Maintainers
 
 * [Rosemary Wang](https://github.com/joatmon08)
