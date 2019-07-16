@@ -100,6 +100,7 @@ We can automate these steps via Terraform for more repeatable deployment and
 management but that is out of scope for this workshop. Instead, we'll run:
 
 ```shell
+export GOOGLE_PROJECT=<project>
 make 0-build-cluster
 ```
 
@@ -107,7 +108,6 @@ __Note__: If you are bringing your own cluster, make sure your kubeconfig is set
 correctly. You will also need to set:
 
 ```shell
-export GOOGLE_PROJECT=<project>
 export CLUSTER_NAME=<cluster name>
 ```
 
@@ -433,6 +433,16 @@ Deploy dynamic secrets enabled sidecar application.
 ```shell
 make 13-dynamic-secrets-sidecar
 ```
+
+Next, port forward and check the Web Preview for the database credentials.
+
+```shell
+PODNAME=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l app=exampleapp-database-sidecar)
+kubectl port-forward $PODNAME 8082:8080 &
+```
+
+Using the username and password from the example application web page, you
+should be able to access the database table.
 
 ## Maintainers
 
