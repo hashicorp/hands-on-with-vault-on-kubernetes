@@ -234,10 +234,10 @@ identity) to the policy outlined by the access control list.
 
 Let's review the following files in `helm/vault-helm-acl`:
 
-- `acl-config.yaml`: This is the configuration we'll use to
-  configure an administrator account so we do not use the Vault root token. The
-  policy in this file allows the creation and modification of other policies as
-  well as retrieval of secrets.
+- `acl-config.yaml`: This is the configuration we'll use to configure an
+  administrator account so we do not use the Vault root token. The policy in
+  this file allows the creation and modification of other policies as well as
+  retrieval of secrets.
 
 - `acl-init-job.yaml`: We use a Kubernetes Job to apply the ACL policy.
 
@@ -286,8 +286,8 @@ To demonstrate how we would use a service account's JWT to access the secrets
 for a given path, we'll create a policy to allow creation, deletion, updates,
 and retrieval at the path `secret/data/exampleapp/*`.
 
-Then, we link the service account to a Vault named role. After that, we'll add
-a secret to `secret/data/exampleapp/config` to read later.
+Then, we link the service account to a Vault named role. After that, we'll add a
+secret to `secret/data/exampleapp/config` to read later.
 
 Apply configuration using:
 
@@ -312,7 +312,7 @@ pod to the Cloud Shell instance.
 
 ```shell
 POD_NAME=$(kubectl get pods -l app=exampleapp-simple -o jsonpath='{.items[*].metadata.name}')
-kubectl port-forward $POD_NAME 8080:8080
+kubectl port-forward $POD_NAME 8080:8080 &
 ```
 
 To view the example application in the browser, we can use the "Web Preview"
@@ -325,19 +325,18 @@ We see the empty application on the browser.
 
 ![exampleapp-simple](./images/exampleapp-simple.png "Simple Example App")
 
-Hit "Ctrl+C" to stop the port forward and continue.
-
 ## Step 8: Get the Vault Token from JWT
 
-We will perform a Vault login on the behalf of the `exampleapp` pod and get a Vault token.
-The token can be used to retreive secrets for the `exampleapp` application.
+We will perform a Vault login on the behalf of the `exampleapp` pod and get a
+Vault token. The token can be used to retreive secrets for the `exampleapp`
+application.
 
 ```shell
 make 8-token
 ```
 
-The above command will create a local file called `local.env` that contains the Vault root
-token and Vault address.
+The above command will create a local file called `local.env` that contains the
+Vault root token and Vault address.
 
 ```bash
 cat local.env
@@ -385,10 +384,11 @@ Port forward to the sidecar pod.
 
 ```shell
 PODNAME=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -l app=exampleapp-sidecar)
-kubectl port-forward $PODNAME 8080:8080 &
+kubectl port-forward $PODNAME 8081:8080 &
 ```
 
-When we open the Web Preview in Cloud Shell, we should see our secret displayed.
+When we open the Web Preview in Cloud Shell (be sure to change the port to
+8081), we should see our secret displayed.
 
 ![exampleapp-sidecar](./images/exampleapp-sidecar.png "Sidecar Example App")
 
@@ -402,13 +402,15 @@ vault kv put secret/data/exampleapp/config ttl="5s" username="exampleapp" passwo
 When we refresh the browser with the example application, we should see the
 secret updated.
 
-![exampleapp-sidecar-updated](./images/exampleapp-sidecar-updated.png "Sidecar Example
-App with Updated Secret")
+![exampleapp-sidecar-updated](./images/exampleapp-sidecar-updated.png "Sidecar
+Example App with Updated Secret")
 
 ### Step 11: Deploy MySQL on Kubernetes
 
-In order to learn about Vault's dynamic credential generation capabilities, we will look at an example
-where we generate dynamically database credentials using Vault's [Database secret engine](https://www.vaultproject.io/docs/secrets/databases/index.html).
+In order to learn about Vault's dynamic credential generation capabilities, we
+will look at an example where we generate dynamically database credentials using
+Vault's [Database secret
+engine](https://www.vaultproject.io/docs/secrets/databases/index.html).
 
 Deploy a dummy MySQL database on Kubernetes.
 
