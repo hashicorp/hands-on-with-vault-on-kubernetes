@@ -1,5 +1,10 @@
 # Vault on Kubernetes
 
+> This was a workshop conducted prior to the release of the official Vault Helm
+chart. For the official chart, see
+[here](https://github.com/hashicorp/vault-helm). They may not reflect updates to
+the officially supported Vault or Consul charts.
+
 [Introduction Slides](https://speakerdeck.com/joatmon08/hands-on-with-vault-on-kubernetes)
 
 This is workshop material for deploying Vault on Kubernetes. As a pre-requisite,
@@ -180,6 +185,8 @@ from other resources, we use a Kubernetes namespace. We can apply access control
 and resource quotas to the namespace.
 
 ## Step 3: Deploy Vault
+
+> This section may be substituted with the [official Vault Helm chart](https://github.com/hashicorp/vault-helm).
 
 Now that we've set up the backend for Vault and generated certificates, we can
 deploy the Vault cluster to Kubernetes.
